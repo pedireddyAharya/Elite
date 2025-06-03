@@ -1,0 +1,45 @@
+import pandas as pd
+from fpdf import FPDF
+
+# Step 1: Load data
+try:
+    data = pd.read_csv('c:/98/sample_data.txt') 
+except FileNotFoundError:
+    print("❌ sample_data.csv not found. Make sure the file is in the same directory.")
+    exit()
+
+# Step 2: Generate summary
+summary = data.describe()
+
+# Step 3: Create PDF
+class PDF(FPDF):
+    def header(self):
+        self.set_font("Arial", "B", 14)
+        self.cell(0, 10, "Automated Data Report", border=False, ln=True, align="C")
+        self.ln(5)
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font("Arial", "I", 8)
+        self.cell(0, 10, f"Page {self.page_no()}", align="C")
+
+    def add_title(self, title):
+        self.set_font("Arial", "B", 12)
+        self.cell(0, 10, title, ln=True)
+        self.ln(3)
+
+    def add_text(self, text):
+        self.set_font("Arial", "", 10)
+        self.multi_cell(0, 8, text)
+        self.ln()
+
+# Step 4: Build PDF
+pdf = PDF()
+pdf.add_page()
+pdf.add_title("Summary Statistics for Marks")
+pdf.add_text(summary.to_string())
+
+# Step 5: Save PDF
+pdf.output("automated_report.pdf")
+
+print("✅ Report created successfully: automated_report.pdf")
